@@ -43,11 +43,12 @@ makeOverlay <- function(posternum,res=32,textsize=5) {
 
 #load poster list
 posterList <- read.csv("posterList.csv")
-#generate tags for each author (<initial>_<lastname>)
+#generate tags for each author (<lastname>_<firstname>)
 nametag <- tolower(sapply(strsplit(posterList$Presenter," "),function(names){
 	lastname <- tolower(tail(names,1))
-	initial <- tolower(substr(names[[1]],1,1))
-	paste0(initial,"_",lastname)
+	# initial <- tolower(substr(names[[1]],1,1))
+	firstname <- tolower(head(names,1))
+	paste0(lastname,"_",firstname)
 }))
 #find matching raw images for each tag
 rawfiles <- sapply(nametag,function(tag) {
@@ -74,7 +75,7 @@ if (length(leftovers)>0) {
 posterList$rawfile <- rawfiles
 
 #process images
-yogitools::rowApply(posterList[!is.na(rawfiles),],function(Poster.number,rawfile,...) {
+invisible(yogitools::rowApply(posterList[!is.na(rawfiles),],function(Poster.number,rawfile,...) {
 	logger$info("Processing ",Poster.number)
 	makeOverlay(Poster.number)
 	system2("bash",args=c(
@@ -82,7 +83,7 @@ yogitools::rowApply(posterList[!is.na(rawfiles),],function(Poster.number,rawfile
 		Poster.number,
 		rawfile
 	),wait=TRUE)
-})
+}))
 
 
 logger$info("Generating index HTML document")

@@ -35,13 +35,13 @@ checkSize() {
   done
 }
 
-#rescale to max allowed size if necessary
+#convert to PNG and rescale to max allowed size if necessary
 if ! checkSize $rawimg; then
 	echo "Rescaling..."
 	convert -quiet $rawimg -resize "${maxsize}x${maxsize}" $scaledimg
 else
-	#otherwise we just create a softlink for convenience
-	ln -s $rawimg $scaledimg
+	#otherwise we just convert it to PNG format
+  convert -quiet $rawimg $scaledimg
 fi
 
 #rescale to preview size
