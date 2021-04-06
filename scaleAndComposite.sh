@@ -17,6 +17,12 @@ thumbimg=processed/${posternum}_thumb.png
 icon=processed/${posternum}_icon.png
 overlay=processed/overlay_${posternum}.png
 
+#Check if output already exists. if so we can skip
+if [[ -f $scaledimg ]]; then
+  echo "Already converted. Skipping..."
+  exit 0
+fi
+
 echo "Checking file..."
 if [[ $(file $rawimg) =~ "image data" ]]; then
   echo "Image recognized!"

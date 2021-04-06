@@ -87,6 +87,13 @@ invisible(yogitools::rowApply(posterList[!is.na(rawfiles),],function(Poster.numb
 
 
 logger$info("Generating index HTML document")
+htmlfile <- "processed/posterList.html"
+
+if (file.exists(htmlfile)) {
+	logger$info("...already exists. skipping.")
+	logger$info("Processing complete!")
+	quit(save="no")
+}
 
 #generate index document for rooms
 posterList$roomAssignments <- sapply(posterList$Poster.number,substr,1,1)
@@ -150,6 +157,6 @@ footer <- "
 "
 
 #write HTML document ot file
-cat(header,paste(htmlTables,collapse="\n"),footer,file="processed/posterList.html")
+cat(header,paste(htmlTables,collapse="\n"),footer,file=htmlfile)
 
 logger$info("Processing complete!")
