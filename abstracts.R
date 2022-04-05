@@ -7,11 +7,18 @@ abstractTable <- read.csv(commandArgs(TRUE)[[1]])
 
 #escape latex command characters
 escape <- function(strs) {
+  strs <- trimws(strs)
   strs <- gsub("#","\\#",strs,fixed=TRUE)
   strs <- gsub("%","\\%",strs,fixed=TRUE)
   strs <- gsub("","",strs,fixed=TRUE)
+  strs <- gsub(" ","",strs,fixed=TRUE)
   strs <- gsub("α","$\\alpha$",strs,fixed=TRUE)
   strs <- gsub("β","$\\beta$",strs,fixed=TRUE)
+  strs <- gsub("Δ","$\\Delta$",strs,fixed=TRUE)
+  strs <- gsub("ρ","$\\rho$",strs,fixed=TRUE)
+  strs <- gsub("","$\\uparrow$",strs,fixed=TRUE)
+  strs <- gsub("","$\\pm$",strs,fixed=TRUE)
+  strs <- gsub("_","$\\_$",strs,fixed=TRUE)
   strs <- gsub("&","\\&",strs,fixed=TRUE)
   strs <- gsub("[","{[}",strs,fixed=TRUE)
   strs <- gsub("]","{]}",strs,fixed=TRUE)
@@ -22,6 +29,7 @@ escape <- function(strs) {
 }
 abstractTable$Author.list <- escape(abstractTable$Author.list)
 abstractTable$Author.affiliations <- escape(abstractTable$Author.affiliations)
+abstractTable$Poster.Title <- escape(abstractTable$Poster.Title)
 abstractTable$Abstract.text <- escape(abstractTable$Abstract.text)
 abstractTable$Keywords <- escape(abstractTable$Keywords)
 
@@ -57,7 +65,9 @@ writeLines(c(header,content,footer),con=con)
 close(con)
 
 #compile latex to pdf
-system("pdflatex -halt-on-error abstracts")
+retVal <- system("pdflatex -halt-on-error abstracts")
 
-#cleanup
-file.remove(c("abstracts.aux","abstracts.log","abstracts.tex"))
+#cleanup (if compilation was successful)
+if (retVal == 0) {
+  file.remove(c("abstracts.aux","abstracts.log","abstracts.tex"))
+}
