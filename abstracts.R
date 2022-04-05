@@ -14,6 +14,8 @@ escape <- function(strs) {
   strs <- gsub(" "," ",strs,fixed=TRUE)
   strs <- gsub("α","$\\alpha$",strs,fixed=TRUE)
   strs <- gsub("β","$\\beta$",strs,fixed=TRUE)
+  strs <- gsub("γ","$\\gamma$",strs,fixed=TRUE)
+  strs <- gsub("δ","$\\delta$",strs,fixed=TRUE)
   strs <- gsub("Δ","$\\Delta$",strs,fixed=TRUE)
   strs <- gsub("ρ","$\\rho$",strs,fixed=TRUE)
   strs <- gsub("","$\\uparrow$",strs,fixed=TRUE)
