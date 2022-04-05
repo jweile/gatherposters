@@ -11,7 +11,7 @@ escape <- function(strs) {
   strs <- gsub("#","\\#",strs,fixed=TRUE)
   strs <- gsub("%","\\%",strs,fixed=TRUE)
   strs <- gsub("","",strs,fixed=TRUE)
-  strs <- gsub(" ","",strs,fixed=TRUE)
+  strs <- gsub(" "," ",strs,fixed=TRUE)
   strs <- gsub("α","$\\alpha$",strs,fixed=TRUE)
   strs <- gsub("β","$\\beta$",strs,fixed=TRUE)
   strs <- gsub("Δ","$\\Delta$",strs,fixed=TRUE)
@@ -55,7 +55,7 @@ content <- sapply(1:nrow(abstractTable),function(i) with(abstractTable[i,],{
     sprintf("\\textbf{Presenter:} %s (%s, %s)\\\\",Presenter.Name, Presenter.s.Role, Presenter.s.Institution),
     sprintf("\\textbf{Submitted on:} %s\\\\",Timestamp),
     sprintf("\\textbf{Platform talk:} %s\\\\",Would.you.like.your.abstract.to.be.considered.for.a.platform.talk.),
-    "\\newpage"
+    "\\pagebreak"
   )
 }))
 
