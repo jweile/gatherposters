@@ -44,45 +44,64 @@ makeOverlay <- function(posternum,res=32,textsize=5) {
 #load poster list
 posterList <- read.csv("posterList.csv")
 #generate tags for each author (<lastname>_<firstname>)
-nametag <- tolower(sapply(strsplit(posterList$Presenter," "),function(names){
-	lastname <- tolower(tail(names,1))
-	# initial <- tolower(substr(names[[1]],1,1))
-	firstname <- tolower(head(names,1))
-	paste0(lastname,"_",firstname)
-}))
+# nametag <- tolower(sapply(strsplit(posterList$Presenter.Name," "),function(names){
+# 	lastname <- tolower(tail(names,1))
+# 	# initial <- tolower(substr(names[[1]],1,1))
+# 	firstname <- tolower(head(names,1))
+# 	paste0(lastname,"_",firstname)
+# }))
 #find matching raw images for each tag
-rawfiles <- sapply(nametag,function(tag) {
-	fs <- list.files("raw",full.names=TRUE,pattern=tag)
-	if (length(fs)==0) {
-		logger$warn("No image found for ",tag)
-		return(NA)
-	} else if (length(fs) > 1) {
-		logger$warn("Multiple matches found for ",tag,": ",paste(fs,collapse=", "))
-		logger$warn("Using first match only!")
-		return(fs[[1]])
-	} else {
-		return(fs)
-	}
+# rawfiles <- sapply(nametag,function(tag) {
+# 	fs <- list.files("raw",full.names=TRUE,pattern=tag)
+# 	if (length(fs)==0) {
+# 		logger$warn("No image found for ",tag)
+# 		return(NA)
+# 	} else if (length(fs) > 1) {
+# 		logger$warn("Multiple matches found for ",tag,": ",paste(fs,collapse=", "))
+# 		logger$warn("Using first match only!")
+# 		return(fs[[1]])
+# 	} else {
+# 		return(fs)
+# 	}
+# })
+
+# #check that all raw images are accounted for
+# leftovers <- setdiff(list.files("raw",full.names=TRUE),rawfiles)
+# if (length(leftovers)>0) {
+# 	logger$warn("Unmatched image(s):",paste(leftovers,collapse=", "))
+# }
+
+#find matching raw images for each presesnter
+posterfiles <- list.files("Poster image (File responses)",full.names=TRUE)
+posterfile.names <- yogitools::extract.groups(posterfiles,"- (.*)\\.\\w+$")
+posterList$rawfile <- sapply(posterList$Presenter.Name,function(n) {
+  if (n %in% posterfile.names) {
+    paste(posterfiles[which(posterfile.names == n)],collapse="|")
+  } else NA
 })
 
-#check that all raw images are accounted for
-leftovers <- setdiff(list.files("raw",full.names=TRUE),rawfiles)
+#Unrecognized files:
+leftovers <- setdiff(posterfile.names,posterList$Presenter.Name)
 if (length(leftovers)>0) {
 	logger$warn("Unmatched image(s):",paste(leftovers,collapse=", "))
 }
 
 #add file links to table
-posterList$rawfile <- rawfiles
+# posterList$rawfile <- rawfiles
 
 #process images
-invisible(yogitools::rowApply(posterList[!is.na(rawfiles),],function(Poster.number,rawfile,...) {
+invisible(yogitools::rowApply(posterList[!is.na(posterList$rawfile),],function(Poster.number,rawfile,...) {
 	logger$info("Processing ",Poster.number)
-	makeOverlay(Poster.number)
-	system2("bash",args=c(
-		"scaleAndComposite.sh",
-		Poster.number,
-		rawfile
-	),wait=TRUE)
+	if (!file.exists(paste0("processed/",Poster.number,"_full.png"))) {
+		makeOverlay(Poster.number)
+		system2("bash",args=c(
+			"scaleAndComposite.sh",
+			Poster.number,
+			paste0("'",rawfile,"'")
+		),wait=TRUE)
+	} else {
+		# logger$info("Already processed. Skipping...")
+	}
 }))
 
 
@@ -97,24 +116,28 @@ if (file.exists(htmlfile)) {
 
 #generate index document for rooms
 posterList$roomAssignments <- sapply(posterList$Poster.number,substr,1,1)
+timeSlots <- c(
+	"11:05-11:35 EST","11:35-12:05 EST","12:25-12:55 EST","12:55-13:25 EST"
+)[posterList$Time.slot]
+posterList$Time.slot <- timeSlots
 
 #generate html listings for each room
 htmlTables <- tapply(1:nrow(posterList),posterList$roomAssignments,function(idx) {
 	room <- posterList[idx[[1]],"roomAssignments"]
 	pnums <- posterList[idx,"Poster.number"]
 	psubnum <- as.integer(substr(pnums,2,nchar(pnums)))
-	subtable1 <- posterList[idx[psubnum <= 8],1:3]
-	subtable2 <- posterList[idx[psubnum > 8],1:3]
+	subtable1 <- posterList[idx[psubnum <= 8],1:4]
+	subtable2 <- posterList[idx[psubnum > 8],1:4]
 	paste(
 		sprintf("<h1 id=\"%s\">Posters %s</h1>",tolower(room),room),
 		sprintf("<h2 id=\"%s1\">Posters %s1-%s8</h2>",tolower(room),room,room),
 		"<table>",
-		"<tr><th>Poster number</th> <th>Presenter</th> <th>Poster title</th></tr>",
+		"<tr><th>Poster number</th> <th>Presentation time</th> <th>Presenter</th> <th>Poster title</th></tr>",
 		df2html(subtable1),
 		"</table>",
 		sprintf("<h2 id=\"%s9\">Posters %s9-%s%d</h2>",tolower(room),room,room,max(psubnum)),
 		"<table>",
-		"<tr><th>Poster number</th> <th>Presenter</th> <th>Poster title</th></tr>",
+		"<tr><th>Poster number</th> <th>Presentation time</th> <th>Presenter</th> <th>Poster title</th></tr>",
 		df2html(subtable2),
 		"</table>",
 		sep="\n"

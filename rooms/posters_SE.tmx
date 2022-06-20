@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.1" orientation="orthogonal" renderorder="right-down" width="35" height="46" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="1">
- <tileset firstgid="1" source="../../Indoor.tsx"/>
- <tileset firstgid="1795" source="../../posterboard.tsx"/>
- <tileset firstgid="1801" source="../../LPC_Terrain/Terrain.tsx"/>
- <tileset firstgid="2825" source="../../victorian-market.tsx"/>
- <tileset firstgid="4105" source="../../victorian-accessories.tsx"/>
- <tileset firstgid="6665" source="../../victorian-streets.tsx"/>
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="35" height="46" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="1">
+ <tileset firstgid="1" source="tilesets/Indoor.tsx"/>
+ <tileset firstgid="1795" source="tilesets/posterboard.tsx"/>
+ <tileset firstgid="1801" source="tilesets/Terrain.tsx"/>
+ <tileset firstgid="2825" source="tilesets/victorian-market.tsx"/>
+ <tileset firstgid="4105" source="tilesets/victorian-accessories.tsx"/>
+ <tileset firstgid="6665" source="tilesets/victorian-streets.tsx"/>
  <layer id="1" name="Floor" width="35" height="46">
   <data encoding="csv">
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
